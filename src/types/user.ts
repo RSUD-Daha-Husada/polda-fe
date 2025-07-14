@@ -7,4 +7,5 @@ export default interface User {
     is_active: boolean;
     roleId: string;
     poto: string;
+    lastLogin:string;
 }
