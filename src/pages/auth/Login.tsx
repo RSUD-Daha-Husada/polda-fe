@@ -18,11 +18,11 @@ export default function LoginPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
-
     const [useCodeLogin, setUseCodeLogin] = useState(true);
 
     const [code, setCode] = useState("");
 
+    const [loading, setLoading] = useState(false);
     const [loadingKode, setLoadingKode] = useState(false);
 
     const handleGetCode = async () => {
@@ -32,7 +32,7 @@ export default function LoginPage() {
         }
 
         setLoadingKode(true);
-        setErrorMessage(null); 
+        setErrorMessage(null);
 
         try {
             await axiosInstance.post("/auth/request-code", { username });
@@ -47,7 +47,8 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setErrorMessage(null); 
+        setErrorMessage(null);
+        setLoading(true);
 
         try {
             const endpoint = useCodeLogin
@@ -69,6 +70,8 @@ export default function LoginPage() {
             const err = error as AxiosError<{ error?: string; message?: string }>;
             const msg = err.response?.data?.error || err.response?.data?.message || "Login gagal";
             setErrorMessage(msg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -208,7 +211,7 @@ export default function LoginPage() {
                             <span id="greeting" className="whitespace-nowrap" />
                         </h2>
                         <p className="mt-4 text-xl max-w-5xl" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.4)" }}>
-                            Sistem Single Sign‑On RSUD Daha Husada untuk mengakses semua layanan digital secara terintegrasi dan efisien.
+                            Sistem Single Sign On RSUD Daha Husada untuk mengakses semua layanan digital secara terintegrasi dan efisien.
                         </p>
                     </div>
                 </div>
@@ -216,9 +219,15 @@ export default function LoginPage() {
                 {/* Right side – Login form */}
                 <div className="w-1/3 bg-black/50 flex items-center justify-center p-12">
                     <div className="w-full max-w-md flex flex-col items-center">
-                        <h2 className="text-3xl font-semibold text-white text-center mb-10">
-                            {useCodeLogin ? "Login dengan Kode" : "Silahkan Login"}
-                        </h2>
+                        <img src="/assets/logo/logo-dh.png" alt="" className="w-40 h-auto mb-5" />
+
+                        <div className="mb-8 text-center">
+                            <h2 className="text-3xl mb-5 font-semibold text-white text-center">
+                                Single Sign On
+                            </h2>
+
+                            <p className="text-white text-center text-lg mnb-5">Silahkan login terlebih dahulu</p>
+                        </div>
 
                         <form className="w-full flex flex-col items-center" onSubmit={handleLogin}>
                             {errorMessage && (
@@ -237,7 +246,7 @@ export default function LoginPage() {
                                             name="username"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
-                                            placeholder="example"
+                                            placeholder="Masukkan username"
                                             className="flex-1 bg-white text-lg px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                             required
                                         />
@@ -257,7 +266,7 @@ export default function LoginPage() {
                                         name="username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        placeholder="example"
+                                        placeholder="Masukkan username"
                                         className="w-full bg-white text-lg px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                         required
                                     />
@@ -295,7 +304,7 @@ export default function LoginPage() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(prev => !prev)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
+                                            className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
                                             tabIndex={-1}
                                         >
                                             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -309,7 +318,31 @@ export default function LoginPage() {
                                 type="submit"
                                 className="w-[80%] cursor-pointer text-xl bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
                             >
-                                Login
+                                {loading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <svg
+                                            className="animate-spin h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                className="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="4"
+                                            />
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8v4l3.536-3.536A9.953 9.953 0 0012 2C6.477 2 2 6.477 2 12h2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                ) : "Login"}
+
                             </button>
 
                             <p className="mt-4 text-white cursor-pointer" onClick={() => setUseCodeLogin(!useCodeLogin)}>
