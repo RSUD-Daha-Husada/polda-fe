@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import axiosInstance from "../utils/axios";
 import type User from "../types/user"; // pastikan file ini berisi interface User seperti yang kamu kirim
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 export default function EditProfilPage() {
     const [user, setUser] = useState<User | null>(null);
     const [newPassword, setNewPassword] = useState("");
+    const [telephone, setTelephone] = useState("");
     const [oldPassword, setOldPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [avatar, setAvatar] = useState<File | null>(null);
@@ -25,8 +27,9 @@ export default function EditProfilPage() {
                 const userData: User = res.data;
                 setUser(userData);
 
-                setAvatarPreview(userData.poto);
-                console.log("profile data:", userData.poto);
+                setAvatarPreview(userData.photo);
+                setTelephone(userData.telephone || "");
+                console.log("profile data:", userData.photo);
 
             })
             .catch((err) => {
@@ -49,8 +52,9 @@ export default function EditProfilPage() {
         // Cek kalau tidak ada perubahan
         const noAvatarChange = !avatar;
         const noPasswordChange = !newPassword;
+        const telephoneUnchanged = telephone === user?.telephone;
 
-        if (noAvatarChange && noPasswordChange) {
+        if (noAvatarChange && noPasswordChange && telephoneUnchanged) {
             Swal.fire({
                 icon: "warning",
                 title: "Tidak Ada Perubahan",
@@ -89,7 +93,9 @@ export default function EditProfilPage() {
 
         const formData = new FormData();
         if (avatar) formData.append("avatar", avatar);
+        formData.append("telephone", telephone);
         if (newPassword) {
+            formData.append("telephone", telephone);
             formData.append("password", newPassword);
             formData.append("old_password", oldPassword);
         }
@@ -122,21 +128,26 @@ export default function EditProfilPage() {
     };
 
     return (
-        <DashboardLayout title="Edit Profil">
+        <DashboardLayout title="Edit Profil" centerTitle=" ">
+            <Link to="/apps" className="mt-3 mb-4 inline-block text-white bg-green-600 px-4 py-3 rounded-md text-blue-600 hover:bg-green-700">
+                <ArrowLeft size={20} className="inline-block"></ArrowLeft><span className="ml-2 pr-2">Kembali</span>
+            </Link>
             <form
                 onSubmit={handleSubmit}
-                className="w-full mx-auto bg-white p-6 rounded-xl shadow-md space-y-6"
+                className="w-full mx-auto bg-white/50 backdrop-blur-md p-6 rounded-xl shadow-md space-y-6"
             >
                 {/* Avatar */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Foto Profil</label>
-                    <div className="relative w-40 h-56 rounded-md overflow-hidden border-3 border-gray-300 shadow">
+                    <label className="block text-xl font-medium text-black mb-2">Foto Profil</label>
+                    <div className="relative w-40 h-56 rounded-md overflow-hidden border-3 border-black shadow">
                         <img
                             src={
                                 avatar
-                                    ? avatarPreview // base64 dari FileReader
+                                    ? avatarPreview // base64
                                     : avatarPreview
-                                        ? `${AVATAR_BASE_URL}/${avatarPreview}` // dari server
+                                        ? avatarPreview.startsWith("http://") || avatarPreview.startsWith("https://")
+                                            ? avatarPreview // sudah URL lengkap
+                                            : `${AVATAR_BASE_URL}/${avatarPreview}` // tambahkan BASE URL
                                         : "/assets/img/avatar-default.png"
                             }
                             alt="Preview"
@@ -177,7 +188,7 @@ export default function EditProfilPage() {
                                     Swal.fire({
                                         icon: "warning",
                                         title: "Ukuran Terlalu Besar",
-                                        text: "Ukuran foto maksimal 1MB.",
+                                        text: "Ukuran foto maksimal 2MB.",
                                     });
                                     e.target.value = "";
                                     return;
@@ -193,35 +204,40 @@ export default function EditProfilPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Username */}
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <label htmlFor="username" className="block text-md font-medium text-black mb-1">Username</label>
                         <input
                             type="text"
                             id="username"
                             value={user?.username || ""}
                             readOnly
-                            className="w-full p-2 border rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                            className="w-full p-2 border rounded-md text-black text-black cursor-not-allowed focus:outline-none focus:ring-0 focus:border-gray-300"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label htmlFor="email" className="block text-md font-medium text-black mb-1">Email</label>
                         <input
                             type="text"
                             id="email"
                             value={user?.email || ""}
                             readOnly
-                            className="w-full p-2 border rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                            className="w-full p-2 border rounded-md text-black text-black cursor-not-allowed focus:outline-none focus:ring-0 focus:border-gray-300"
                         />
                     </div>
                 </div>
                 <div>
-                    <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                    <label htmlFor="telephone" className="block text-md font-medium text-black mb-1">Nomor Telepon</label>
                     <input
                         type="text"
                         id="telephone"
-                        value={user?.telephone || ""}
-                        readOnly
-                        className="w-full p-2 border rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value)) {
+                                setTelephone(value);
+                            }
+                        }}
+                        value={telephone}
+                        className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-0 focus:border-gray-300"
                     />
                 </div>
 
@@ -240,14 +256,14 @@ export default function EditProfilPage() {
                     <>
                         {/* Password lama */}
                         <div>
-                            <label htmlFor="passwordLama" className="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
+                            <label htmlFor="passwordLama" className="block text-md font-medium text-black mb-1">Password Lama</label>
                             <div className="relative">
                                 <input
                                     type={showOldPassword ? "text" : "password"}
                                     id="passwordLama"
                                     value={oldPassword}
                                     onChange={(e) => setOldPassword(e.target.value)}
-                                    className="w-full p-2 border rounded-md text-gray-600"
+                                    className="w-full p-2 border rounded-md text-black focus:outline-none focus:ring-0 focus:border-gray-300"
                                     placeholder="Masukkan password lama"
                                 />
                                 <button
@@ -264,14 +280,14 @@ export default function EditProfilPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Password Baru */}
                             <div>
-                                <label htmlFor="passwordBaru" className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                                <label htmlFor="passwordBaru" className="block text-md font-medium text-black mb-1">Password Baru</label>
                                 <div className="relative">
                                     <input
                                         id="passwordBaru"
                                         type={showPassword ? "text" : "password"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="w-full p-2 border rounded-md text-gray-600 pr-10"
+                                        className="w-full p-2 border rounded-md text-black pr-10 focus:outline-none focus:ring-0 focus:border-gray-300"
                                         placeholder="Masukkan password baru"
                                     />
                                     <button
@@ -286,13 +302,13 @@ export default function EditProfilPage() {
 
                             {/* Konfirmasi Password */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                                <label className="block text-md font-medium text-black mb-1">Konfirmasi Password</label>
                                 <div className="relative">
                                     <input
                                         type={showPasswordConfirm ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full p-2 border rounded-md text-gray-600 pr-10"
+                                        className="w-full p-2 border rounded-md text-black pr-10 focus:outline-none focus:ring-0 focus:border-gray-300"
                                         placeholder="Ulangi password baru"
                                     />
                                     <button

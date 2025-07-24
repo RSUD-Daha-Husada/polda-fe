@@ -33,8 +33,11 @@ export default function DashboardPage() {
         setQuote(quotes[randomIndex]);
     }, []);
 
+    console.log("user", user);
+
+
     return (
-        <DashboardLayout title="Dashboard">
+        <DashboardLayout title="Dashboard" centerTitle=" ">
             <section className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-md">
                     <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -46,6 +49,7 @@ export default function DashboardPage() {
                             ? dayjs(user.lastLogin).format("DD MMMM YYYY, HH:mm [WIB]")
                             : "Belum ada data login"}
                     </p>
+
                 </div>
 
                 <div className="bg-green-100 p-6 rounded-xl shadow-md">

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import type { WindowWithYT } from "../../types/youtube";
 import axiosInstance from "../../utils/axios";
 import type { AxiosError } from "axios";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, MessageSquare } from "lucide-react";
+import { useUser } from "../../hooks/useUser";
+import { Navigate } from "react-router-dom";
 
 function formatErrorMessage(msg: string | null) {
     if (!msg) return "";
@@ -12,6 +14,8 @@ function formatErrorMessage(msg: string | null) {
 }
 
 export default function LoginPage() {
+
+    const { user } = useUser();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -65,7 +69,7 @@ export default function LoginPage() {
             if (!token) throw new Error("Token tidak ditemukan");
 
             localStorage.setItem("token", token);
-            window.location.href = "/dashboard";
+            window.location.href = "/apps";
         } catch (error: unknown) {
             const err = error as AxiosError<{ error?: string; message?: string }>;
             const msg = err.response?.data?.error || err.response?.data?.message || "Login gagal";
@@ -193,40 +197,40 @@ export default function LoginPage() {
         };
     }, []);
 
+    if (user) {
+        return <Navigate to="/apps" replace />
+    }
+
     return (
         <div className="relative min-h-screen overflow-hidden">
-            {/* Video background */}
             <div id="player-container" className="absolute inset-0">
                 <div id="player" />
             </div>
-            {/* Dark overlay */}
             <div className="absolute inset-0 bg-black/50 z-[1]" />
 
             <div className="relative z-[2] flex min-h-screen">
-                {/* Left side */}
                 <div className="w-2/3 flex flex-col text-white p-10">
-                    <img src="/assets/logo/logo-dh.png" alt="Logo Daha Husada" className="w-20 h-auto" />
-                    <div className="mt-auto ml-20 mb-20">
-                        <h2 className="text-4xl lg:text-5xl font-bold leading-tight" style={{ textShadow: "2px 2px 6px rgba(0,0,0,0.5)" }}>
+                    <img src="/assets/logo/logo-daha.png" alt="Logo Daha Husada" className="w-15 h-auto xl:w-20" />
+                    <div className="mt-auto">
+                        <h2 className="text-2xl xl:text-4xl xl:ml-8 font-bold leading-tight" style={{ textShadow: "2px 2px 6px rgba(0,0,0,0.5)" }}>
                             <span id="greeting" className="whitespace-nowrap" />
                         </h2>
-                        <p className="mt-4 text-xl max-w-5xl" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.4)" }}>
+                        <p className="mt-2 text-md xl:text-xl xl:mb-15 xl:ml-8 max-w-5xl" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.4)" }}>
                             Sistem Single Sign On RSUD Daha Husada untuk mengakses semua layanan digital secara terintegrasi dan efisien.
                         </p>
                     </div>
                 </div>
 
-                {/* Right side – Login form */}
-                <div className="w-1/3 bg-black/50 flex items-center justify-center p-12">
+                <div className="w-1/3 bg-black/50 flex items-center justify-center">
                     <div className="w-full max-w-md flex flex-col items-center">
-                        <img src="/assets/logo/logo-dh.png" alt="" className="w-40 h-auto mb-5" />
+                        <img src="/assets/logo/logo-daha.png" alt="" className="w-25 xl:w-35 h-auto mb-5" />
 
                         <div className="mb-8 text-center">
-                            <h2 className="text-3xl mb-5 font-semibold text-white text-center">
+                            <h2 className="text-2xl xl:text-4xl mb-5 font-semibold text-white text-center">
                                 Single Sign On
                             </h2>
 
-                            <p className="text-white text-center text-lg mnb-5">Silahkan login terlebih dahulu</p>
+                            <p className="text-white text-center text-md xl:text-[20px] mnb-5">Silahkan login terlebih dahulu</p>
                         </div>
 
                         <form className="w-full flex flex-col items-center" onSubmit={handleLogin}>
@@ -237,7 +241,7 @@ export default function LoginPage() {
                             )}
 
                             <div className="mb-4 w-[80%]">
-                                <label htmlFor="username" className="block text-white text-lg mb-2">Username</label>
+                                <label htmlFor="username" className="block text-white text-sm xl:text-[17px] mb-2">Username</label>
                                 {useCodeLogin ? (
                                     <div className="flex gap-2">
                                         <input
@@ -247,16 +251,23 @@ export default function LoginPage() {
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             placeholder="Masukkan username"
-                                            className="flex-1 bg-white text-lg px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            className="flex-1 bg-white text-sm xl:text-[17px] px-2 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                             required
                                         />
                                         <button
                                             type="button"
                                             onClick={handleGetCode}
-                                            className="text-sm cursor-pointer bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                                            className="cursor-pointer bg-green-600 text-white px-2 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
                                             disabled={loadingKode}
                                         >
-                                            {loadingKode ? "Mengirim..." : "Get Kode"}
+                                            {loadingKode ?
+                                                <span className="text-sm xl:text-[17px]">Mengirim...</span> : (
+                                                    <div className="text-[12px] xl:text-[15px]">
+                                                        <MessageSquare size={15} className="inline mr-1 xl:size-[17px]" />
+                                                        Get Kode
+                                                    </div>
+                                                )}
+
                                         </button>
                                     </div>
                                 ) : (
@@ -267,7 +278,7 @@ export default function LoginPage() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         placeholder="Masukkan username"
-                                        className="w-full bg-white text-lg px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full bg-white text-sm xl:text-[17px] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                         required
                                     />
                                 )}
@@ -275,21 +286,28 @@ export default function LoginPage() {
 
                             {useCodeLogin ? (
                                 <div className="mb-6 w-[80%]">
-                                    <label htmlFor="code" className="block text-white text-lg mb-2">Kode</label>
+                                    <label htmlFor="code" className="block text-white text-sm xl:text-[17px] mb-2">Kode</label>
                                     <input
                                         type="text"
                                         id="code"
                                         name="code"
                                         value={code}
-                                        onChange={(e) => setCode(e.target.value)}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (/^\d{0,4}$/.test(value)) {
+                                                setCode(value);
+                                            }
+                                        }}
+                                        inputMode="numeric"
+                                        maxLength={4}
                                         placeholder="Masukkan kode"
-                                        className="w-full bg-white text-lg px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full bg-white text-sm xl:text-[17px] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                         required
                                     />
                                 </div>
                             ) : (
                                 <div className="mb-6 w-[80%]">
-                                    <label htmlFor="password" className="block text-white text-lg mb-2">Password</label>
+                                    <label htmlFor="password" className="block text-white text-sm xl:text-[17px] mb-2">Password</label>
                                     <div className="relative">
                                         <input
                                             type={showPassword ? "text" : "password"}
@@ -298,7 +316,7 @@ export default function LoginPage() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="Masukkan password"
-                                            className="w-full bg-white text-lg px-4 py-2 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            className="w-full bg-white text-sm xl:text-[17px] px-4 py-2 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                             required
                                         />
                                         <button
@@ -307,7 +325,7 @@ export default function LoginPage() {
                                             className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
                                             tabIndex={-1}
                                         >
-                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            {showPassword ? <EyeOff size={18} className="xl:size-[20px]" /> : <Eye size={18} className="xl:size-[20px]" />}
                                         </button>
                                     </div>
                                 </div>
@@ -316,7 +334,7 @@ export default function LoginPage() {
 
                             <button
                                 type="submit"
-                                className="w-[80%] cursor-pointer text-xl bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
+                                className="w-[80%] cursor-pointer bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
                             >
                                 {loading ? (
                                     <div className="flex items-center justify-center gap-2">
@@ -341,11 +359,13 @@ export default function LoginPage() {
                                             />
                                         </svg>
                                     </div>
-                                ) : "Login"}
+                                ) :
+                                    <span className="text-md xl:text-xl">Login</span>
+                                }
 
                             </button>
 
-                            <p className="mt-4 text-white cursor-pointer" onClick={() => setUseCodeLogin(!useCodeLogin)}>
+                            <p className="mt-4 text-white cursor-pointer text-sm xl:text-lg" onClick={() => setUseCodeLogin(!useCodeLogin)}>
                                 {useCodeLogin ? "Login dengan Password?" : "Login dengan Kode?"}
                             </p>
 

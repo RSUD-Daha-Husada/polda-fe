@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import Sidebar from "../components/dashboard/Sidebar";
+// import Sidebar from "../components/dashboard/Sidebar";
 import Header from "../components/dashboard/Header";
 import axiosInstance from "../utils/axios";
 
 interface DashboardLayoutProps {
     title: string;
+    centerTitle: string;
     children: ReactNode;
 }
 
@@ -20,8 +21,8 @@ const handleLogout = async () => {
     }
 };
 
-export default function DashboardLayout({ title, children }: DashboardLayoutProps) {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+export default function DashboardLayout({ title, centerTitle, children }: DashboardLayoutProps) {
+    // const [sidebarOpen, setSidebarOpen] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,14 +42,15 @@ export default function DashboardLayout({ title, children }: DashboardLayoutProp
     }, []);
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Sidebar sidebarOpen={sidebarOpen} />
+        <div className="flex min-h-screen">
+            {/* <Sidebar sidebarOpen={sidebarOpen} /> */}
 
             <main className="flex-1 p-6">
                 <Header
                     title={title}
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
+                    centerTitle={centerTitle}
+                    // sidebarOpen={sidebarOpen}
+                    // setSidebarOpen={setSidebarOpen}
                     profileDropdownOpen={profileDropdownOpen}
                     setProfileDropdownOpen={setProfileDropdownOpen}
                     dropdownRef={dropdownRef}

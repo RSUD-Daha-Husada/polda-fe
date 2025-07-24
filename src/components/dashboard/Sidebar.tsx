@@ -14,7 +14,7 @@ export default function Sidebar({ sidebarOpen }: SidebarProps) {
             <div className={`${sidebarOpen ? "px-6 py-8" : "hidden"}`}>
                 {/* Gambar tengah */}
                 <div className="flex justify-center">
-                    <img src="/assets/logo/logo-dh.png" alt="" className="w-32 mb-5" />
+                    <img src="/assets/logo/logo-daha.png" alt="" className="w-32 mb-5" />
                 </div>
                 <h2 className="text-2xl font-bold text-center">Single Sign On</h2>
                 <h2 className="text-2xl font-bold mb-8 text-center">RSUD Daha Husada</h2>
